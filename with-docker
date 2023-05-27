@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -e
+
+script=$1
+
+if [ ! -f "$script" ]; then
+  echo "File $script not found!"
+  echo "Usage: $0 <ruby script to run>"
+  exit 1
+fi
+
+RUBYS=${RUBYS:-3.0.6,3.1.4,3.2.2}
+
+IFS=',' read -ra ruby_list <<< "$RUBYS"
+
+for ruby_version in "${ruby_list[@]}"
+do
+  echo "Ruby ${ruby_version}"
+  docker run \
+    --pull always \
+    -it \
+    --rm \
+    -v "$(pwd)":/app \
+    -w /app \
+    "ruby:$ruby_version" \
+    ruby "/app/$script"
+  echo
+done
